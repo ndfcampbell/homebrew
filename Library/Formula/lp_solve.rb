@@ -23,7 +23,7 @@ class LpSolve < Formula
     end
 
 	def includeSubdir
-		include/'lp_solve'
+		include/'lpsolve'
 	end
 
     includeSubdir.install Dir['lp*.h']
