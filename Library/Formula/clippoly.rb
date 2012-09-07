@@ -5,8 +5,8 @@ require 'formula'
 
 class Clippoly < Formula
   homepage 'http://clippoly.sourceforge.net/'
-  url 'http://downloads.sourceforge.net/project/clippoly/clippoly/clippoly-pl11/clippoly-pl11.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fclippoly%2Ffiles%2Fclippoly%2Fclippoly-pl11%2F&ts=1346985896&use_mirror=dfn'
-  version 'pl11.tar.gz?r=http%3A%2F%2Fsourceforge'
+  url 'http://downloads.sourceforge.net/project/clippoly/clippoly/clippoly-pl11/clippoly-pl11.tar.gz'
+  version 'pl11'
   sha1 '421df5594bcac83792377d322892d903743faa26'
 
   def patches
@@ -19,7 +19,7 @@ class Clippoly < Formula
   def install
     # ENV.j1  # if your formula's build system can't parallelize
 
-    system "make" # if this fails, try separate make/make install steps
+    system "make lib" # if this fails, try separate make/make install steps
 
     lib.install 'libPolyClip.a'
 
