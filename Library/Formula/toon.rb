@@ -10,7 +10,7 @@ class Toon < Formula
   version '2.0'
 
   # depends_on 'cmake' => :build
-  depends_on :x11 # if your formula requires any X11/XQuartz components
+  #depends_on :x11 # if your formula requires any X11/XQuartz components
 
   def install
     # ENV.j1  # if your formula's build system can't parallelize
