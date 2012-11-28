@@ -15,8 +15,8 @@ class Superlu < Formula
 
     system "make"
     
-	system "cp lib/libsuperlu_4.3.a lib/libsuperlu.a"
-	system "cp TESTING/libtmglib.a lib/libtmglib.a"
+    system "cp lib/libsuperlu_4.3.a lib/libsuperlu.a"
+    system "cp TESTING/libtmglib.a lib/libtmglib.a"
     lib.install 'lib/libsuperlu.a'
     lib.install 'lib/libtmglib.a'
   end
@@ -26,7 +26,7 @@ __END__
 diff -rupN make.inc make.inc
 --- ./make.inc	2012-11-27 19:19:38.000000000 +0000
 +++ ./make.inc	2012-11-28 01:43:18.000000000 +0000
-@@ -16,25 +16,20 @@
+@@ -16,25 +16,21 @@
  #
  #  The machine (platform) identifier to append to the library names
  #
@@ -52,13 +52,14 @@ diff -rupN make.inc make.inc
 -## This BLAS causes single-precision to fail the test in SuperLU
 -#BLASLIB 	= -L/usr/lib -lblas
 +#BLASLIB   	= $(SuperLUroot)/lib/libblas.a
-+BLASLIB   	= -lBLAS
++#BLASLIB   	= -lBLAS
++BLASLIB		= -L/usr/local/opt/openblas/lib -lopenblas
  
 +TMGLIB       	= libtmglib.a
  LIBS		= $(SUPERLULIB) $(BLASLIB)
  
  #
-@@ -46,20 +41,21 @@ ARCHFLAGS    = cr
+@@ -46,20 +42,21 @@ ARCHFLAGS    = cr
  RANLIB       = ranlib
  
  CC           = gcc
@@ -85,4 +86,3 @@ diff -rupN make.inc make.inc
 -MATLAB	     = /usr/sww/matlab
 +MATLAB	     = /Applications/Matlab/MATLAB_R2012a.app/bin/matlab
  
-
