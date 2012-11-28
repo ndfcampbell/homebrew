@@ -18,13 +18,14 @@ class Superlu < Formula
   def install
     # ENV.j1  # if your formula's build system can't parallelize
 
-	system "cat make.inc"
+	#system "cat make.inc"
 
     system "make"
     
     #system "make install" # if this fails, try separate make/make install steps
     
-    lib.install 'lib/libsuperlu_4.3.a'
+	system "cp lib/libsuperlu_4.3.a lib/libsuperlu.a"
+    lib.install 'lib/libsuperlu.a'
   end
 
 #  def test
