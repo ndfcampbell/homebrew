@@ -25,7 +25,9 @@ class Superlu < Formula
     #system "make install" # if this fails, try separate make/make install steps
     
 	system "cp lib/libsuperlu_4.3.a lib/libsuperlu.a"
+	system "cp TESTING/libtmglib.a lib/libtmglib.a"
     lib.install 'lib/libsuperlu.a'
+    lib.install 'lib/libtmglib.a'
   end
 
 #  def test
