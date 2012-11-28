@@ -12,9 +12,12 @@ class ArpackNg < Formula
   # depends_on 'cmake' => :build
   depends_on 'open-mpi'
   depends_on 'openblas'
+  depends_on 'lapack'
 
   def install
     # ENV.j1  # if your formula's build system can't parallelize
+    
+    ENV['LDFLAGS'] = '-L/usr/local/opt/lapack/lib'
     
     ENV.fortran
 
@@ -23,7 +26,7 @@ class ArpackNg < Formula
     
     configure_args = ["--disable-dependency-tracking", "--prefix=#{prefix}", "--enable-shared"]
     configure_args << "--with-blas=openblas"
-    configure_args << "--with-lapack=openblas"
+    configure_args << "--with-lapack=lapack"
 
     system "./configure", *configure_args
 
