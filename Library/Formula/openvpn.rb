@@ -2,32 +2,27 @@ require 'formula'
 
 class Openvpn < Formula
   homepage 'http://openvpn.net/'
-  url 'http://build.openvpn.net/downloads/releases/openvpn-2.2.2.tar.gz'
-  mirror 'http://swupdate.openvpn.org/community/releases/openvpn-2.2.2.tar.gz'
-  sha256 '54ca8b260e2ea3b26e84c2282ccb5f8cb149edcfd424b686d5fb22b8dbbeac00'
+  url 'http://build.openvpn.net/downloads/releases/openvpn-2.3.1.tar.gz'
+  mirror 'http://swupdate.openvpn.org/community/releases/openvpn-2.3.1.tar.gz'
+  sha256 'bd2d7d85b39d4586bcdb74b36eb48d0ac4ab1e6812654c719b04826fdc70fb3c'
 
   depends_on 'lzo'
 
-  # This patch fixes compilation on Lion
-  # There is a long history of confusion between these two consts:
-  # http://www.google.com/search?q=SOL_IP+IPPROTO_IP
-  def patches
-    DATA
-  end
-
   def install
     # Build and install binary
-    system "./configure", "--prefix=#{prefix}", "--disable-debug", "--disable-dependency-tracking"
+    system "./configure", "--disable-debug",
+                          "--disable-dependency-tracking",
+                          "--prefix=#{prefix}",
+                          "--enable-password-save"
     system "make install"
 
     # Adjust sample file paths
-    inreplace ["sample-config-files/openvpn-startup.sh", "sample-scripts/openvpn.init"] do |s|
+    inreplace ["sample/sample-config-files/openvpn-startup.sh"] do |s|
       s.gsub! "/etc/openvpn", etc+'openvpn'
-      s.gsub! "/var/run/openvpn", var+'run/openvpn'
     end
 
     # Install sample files
-    Dir['sample-*'].each do |d|
+    Dir['sample/sample-*'].each do |d|
       (share + 'doc/openvpn' + d).install Dir[d+'/*']
     end
 
@@ -83,20 +78,3 @@ class Openvpn < Formula
     EOS
   end
 end
-
-__END__
-diff --git a/socket.c b/socket.c
-index 4720398..faa1782 100644
---- a/socket.c
-+++ b/socket.c
-@@ -35,6 +35,10 @@
-
- #include "memdbg.h"
-
-+#ifndef SOL_IP
-+#define SOL_IP IPPROTO_IP
-+#endif
-+
- const int proto_overhead[] = { /* indexed by PROTO_x */
-   IPv4_UDP_HEADER_SIZE,
-   IPv4_TCP_HEADER_SIZE,

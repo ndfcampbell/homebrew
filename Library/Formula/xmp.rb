@@ -1,19 +1,25 @@
 require 'formula'
 
 class Xmp < Formula
-  url 'http://downloads.sourceforge.net/project/xmp/xmp/3.5.0/xmp-3.5.0.tar.gz'
   homepage 'http://xmp.sourceforge.net'
-  sha1 '0707b586a445b4c3aab50eb1a6b9feb431a20983'
+  url 'http://downloads.sourceforge.net/project/xmp/xmp/4.0.5/xmp-4.0.5.tar.gz'
+  sha1 '3de0292afc8c0e28b3f2f9328b28bc19d0fda9d1'
+  head 'git://git.code.sf.net/p/xmp/xmp-cli'
+
+  depends_on :autoconf if build.head?
+  depends_on 'pkg-config' => :build
+  depends_on 'libxmp'
 
   def install
+    system "autoconf" if build.head?
     system "./configure", "--prefix=#{prefix}"
     system "make install"
 
     # install the included demo song
-    share.install "SynthSong1"
+    share.install "ub-name.it" unless build.head?
   end
 
   def test
-    system "#{bin}/xmp", "--load-only", "#{share}/SynthSong1"
+    system "#{bin}/xmp", "--load-only", share/"ub-name.it"
   end
 end

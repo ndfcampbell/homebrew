@@ -2,8 +2,8 @@ require 'formula'
 
 class Polarssl < Formula
   homepage 'http://polarssl.org/'
-  url 'http://polarssl.org/code/releases/polarssl-1.1.4-gpl.tgz'
-  sha1 '3dd10bd1a8f7f58e0ef8c91cfa5ea7efd5d5f4bc'
+  url 'https://polarssl.org/code/releases/polarssl-1.2.7-gpl.tgz'
+  sha256 'd64c2d1247f93cdeb884bd3706dfddffc636634bbf81d3772af750d5b5191328'
 
   depends_on 'cmake' => :build
 

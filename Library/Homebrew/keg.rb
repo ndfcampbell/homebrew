@@ -1,4 +1,6 @@
 require 'extend/pathname'
+require 'formula_lock'
+require 'ostruct'
 
 class Keg < Pathname
   def initialize path
@@ -11,7 +13,9 @@ class Keg < Pathname
   LOCALEDIR_RX = /(locale|man)\/([a-z]{2}|C|POSIX)(_[A-Z]{2})?(\.[a-zA-Z\-0-9]+(@.+)?)?/
   INFOFILE_RX = %r[info/([^.].*?\.info|dir)$]
   TOP_LEVEL_DIRECTORIES = %w[bin etc include lib sbin share var Frameworks]
-  PRUNEABLE_DIRECTORIES = %w[bin etc include lib sbin share Frameworks Library/LinkedKegs]
+  PRUNEABLE_DIRECTORIES = %w[bin etc include lib sbin share Frameworks LinkedKegs].map do |d|
+    case d when 'LinkedKegs' then HOMEBREW_LIBRARY/d else HOMEBREW_PREFIX/d end
+  end
 
   # if path is a file in a keg then this will return the containing Keg object
   def self.for path
@@ -33,9 +37,9 @@ class Keg < Pathname
     # of files and directories linked
     $n=$d=0
 
-    TOP_LEVEL_DIRECTORIES.map{ |d| self/d }.each do |src|
-      next unless src.exist?
-      src.find do |src|
+    TOP_LEVEL_DIRECTORIES.map{ |d| self/d }.each do |dir|
+      next unless dir.exist?
+      dir.find do |src|
         next if src == self
         dst=HOMEBREW_PREFIX+src.relative_path_from(self)
         dst.extend ObserverPathnameExtension
@@ -57,6 +61,10 @@ class Keg < Pathname
 
   def fname
     parent.basename.to_s
+  end
+
+  def lock
+    FormulaLock.new(fname).with_lock { yield }
   end
 
   def linked_keg_record
@@ -164,7 +172,8 @@ class Keg < Pathname
     from.make_relative_symlink(self)
   end
 
-protected
+  protected
+
   def resolve_any_conflicts dst
     # if it isn't a directory then a severe conflict is about to happen. Let
     # it, and the exception that is generated will message to the user about
@@ -185,14 +194,14 @@ protected
       puts "Skipping; already exists: #{dst}" if ARGV.verbose?
     # cf. git-clean -n: list files to delete, don't really link or delete
     elsif mode.dry_run and mode.overwrite
-      puts dst if dst.exist?
+      puts dst if dst.exist? or dst.symlink?
       return
     # list all link targets
     elsif mode.dry_run
       puts dst
       return
     else
-      dst.delete if mode.overwrite && dst.exist?
+      dst.delete if mode.overwrite && (dst.exist? or dst.symlink?)
       dst.make_relative_symlink src
     end
   end

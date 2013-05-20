@@ -2,8 +2,8 @@ require 'formula'
 
 class Fontconfig < Formula
   homepage 'http://fontconfig.org/'
-  url 'http://fontconfig.org/release/fontconfig-2.10.1.tar.gz'
-  sha1 'e377cbe989cd22d3a10020309c906ecbbcac0043'
+  url 'http://fontconfig.org/release/fontconfig-2.10.92.tar.bz2'
+  sha1 '5897402b2d05b7dca2843106b6a0e86c39ad0a4c'
 
   keg_only :provided_pre_mountain_lion
 
@@ -12,14 +12,26 @@ class Fontconfig < Formula
   depends_on :freetype
   depends_on 'pkg-config' => :build
 
-  # Patch adapted from Macports patch for 2.9.0 defines sizeof based on __LP64__
-  # Fixes universal builds but seems groovy enough to apply in all cases.
-  # https://trac.macports.org/browser/trunk/dports/graphics/fontconfig/files/patch-check-arch-at-runtime.diff
-  def patches; DATA; end
+  def patches
+    [
+      # Patch adapted from Macports patch for 2.9.0 defines sizeof based on __LP64__
+      # Fixes universal builds but seems groovy enough to apply in all cases.
+      # https://trac.macports.org/browser/trunk/dports/graphics/fontconfig/files/patch-check-arch-at-runtime.diff
+      DATA,
+
+      # Patch copied over from Fedora to correct a bug with in memory fonts
+      # that breaks Firefox, libass and a lot of other sofware
+      # See https://github.com/mxcl/homebrew/issues/19312 for details.
+      # NOTE: This will probably be fixed in next fontconfig.
+      'http://pkgs.fedoraproject.org/cgit/fontconfig.git/plain/fontconfig-fix-woff.patch?id=e669d0170be4492cd966114122ad5281ec2276de'
+    ]
+  end
 
   def install
     ENV.universal_binary if build.universal?
-    system "./configure", "--disable-dependency-tracking", "--with-add-fonts=/Library/Fonts,~/Library/Fonts", "--prefix=#{prefix}"
+    system "./configure", "--disable-dependency-tracking",
+                          "--with-add-fonts=/Library/Fonts,~/Library/Fonts",
+                          "--prefix=#{prefix}"
     system "make install"
   end
 end

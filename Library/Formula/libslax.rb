@@ -2,8 +2,8 @@ require 'formula'
 
 class Libslax < Formula
   homepage 'https://code.google.com/p/libslax/'
-  url 'http://libslax.googlecode.com/files/libslax-0.12.0.tar.gz'
-  sha1 'b2a45cc100366f009c73085d827eb83e582545e5'
+  url 'http://libslax.googlecode.com/files/libslax-0.14.8.tar.gz'
+  sha1 '86447eb486044008aa54bd3f3af491da8dc0fda7'
 
   depends_on 'libtool'  => :build
 

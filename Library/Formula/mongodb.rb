@@ -1,35 +1,12 @@
 require 'formula'
 
-class SixtyFourBitRequired < Requirement
-  def satisfied?
-    MacOS.prefer_64_bit?
-  end
-
-  def fatal?; true end
-
-  def message; <<-EOS.undent
-    32-bit MongoDB binaries are no longer available.
-
-    If you need to run a 32-bit version of MongoDB, you can
-    compile the server from source:
-      http://www.mongodb.org/display/DOCS/Building+for+OS+X
-    EOS
-  end
-end
-
 class Mongodb < Formula
   homepage 'http://www.mongodb.org/'
-  url 'http://fastdl.mongodb.org/osx/mongodb-osx-x86_64-2.2.1.tgz'
-  sha1 '6fc3054cdc7f7e64b12742f7e8f9df256a3253d9'
-  version '2.2.1-x86_64'
+  url 'http://fastdl.mongodb.org/osx/mongodb-osx-x86_64-2.4.3.tgz'
+  sha1 '9b9daa337c11789b832a9548bc2248d861e2ff6b'
+  version '2.4.3-x86_64'
 
-  devel do
-    url 'http://fastdl.mongodb.org/osx/mongodb-osx-x86_64-2.3.0.tgz'
-    sha1 '816ca175bd31e2ec1eb8b61793b1d1e4a247a5da'
-    version '2.3.0-x86_64'
-  end
-
-  depends_on SixtyFourBitRequired.new
+  depends_on :arch => :x86_64
 
   def install
     # Copy the prebuilt binaries to prefix
@@ -47,7 +24,9 @@ class Mongodb < Formula
     mv bin/'mongod', prefix
     (bin/'mongod').write <<-EOS.undent
       #!/usr/bin/env ruby
-      ARGV << '--config' << '#{etc}/mongod.conf' unless ARGV.find { |arg| arg =~ /\-\-config/ }
+      ARGV << '--config' << '#{etc}/mongod.conf' unless ARGV.find { |arg|
+        arg =~ /^\s*\-\-config$/ or arg =~ /^\s*\-f$/
+      }
       exec "#{prefix}/mongod", *ARGV
     EOS
 
@@ -88,14 +67,22 @@ class Mongodb < Formula
       <true/>
       <key>KeepAlive</key>
       <false/>
-      <key>UserName</key>
-      <string>#{`whoami`.chomp}</string>
       <key>WorkingDirectory</key>
       <string>#{HOMEBREW_PREFIX}</string>
       <key>StandardErrorPath</key>
       <string>#{var}/log/mongodb/output.log</string>
       <key>StandardOutPath</key>
       <string>#{var}/log/mongodb/output.log</string>
+      <key>HardResourceLimits</key>
+      <dict>
+        <key>NumberOfFiles</key>
+        <integer>1024</integer>
+      </dict>
+      <key>SoftResourceLimits</key>
+      <dict>
+        <key>NumberOfFiles</key>
+        <integer>1024</integer>
+      </dict>
     </dict>
     </plist>
     EOS

@@ -15,12 +15,12 @@ class Thrift < Formula
 
   depends_on 'boost'
 
-  def install
-    # No reason for this step is known. On Lion at least the pkg.m4 doesn't
-    # even exist. Turns out that it isn't needed on Lion either. Possibly it
-    # isn't needed anymore at all but I can't test that.
-    cp "#{MacOS::X11.share}/aclocal/pkg.m4", "aclocal" if MacOS.version < :lion
+  # Includes are fixed in the upstream. Please remove this patch in the next version > 0.9.0
+  def patches
+    DATA
+  end
 
+  def install
     system "./bootstrap.sh" if build.head?
 
     exclusions = ["--without-python", "--without-ruby"]
@@ -44,14 +44,30 @@ class Thrift < Formula
   end
 
   def caveats; <<-EOS.undent
-    Most language bindings were not installed. You may like to do the
-    following:
+    To install Python bindings:
+      pip install thrift
 
+    To install Ruby bindings:
       gem install thrift
-      easy_install thrift
 
-    If anyone figures out the steps to reliably build a set of bindings, please
-    open a pull request.
+    To install PHP bindings:
+      export PHP_PREFIX=/path/to/homebrew/thrift/0.9.0/php
+      export PHP_CONFIG_PREFIX=/path/to/homebrew/thrift/0.9.0/php_extensions
+      brew install thrift --with-php
     EOS
   end
 end
+__END__
+diff --git a/lib/cpp/src/thrift/transport/TSocket.h b/lib/cpp/src/thrift/transport/TSocket.h
+index ff5e541..65e6aea 100644
+--- a/lib/cpp/src/thrift/transport/TSocket.h
++++ b/lib/cpp/src/thrift/transport/TSocket.h
+@@ -21,6 +21,8 @@
+ #define _THRIFT_TRANSPORT_TSOCKET_H_ 1
+
+ #include <string>
++#include <sys/socket.h>
++#include <arpa/inet.h>
+
+ #include "TTransport.h"
+ #include "TVirtualTransport.h"

@@ -2,8 +2,8 @@ require 'formula'
 
 class Redis < Formula
   homepage 'http://redis.io/'
-  url 'http://redis.googlecode.com/files/redis-2.6.5.tar.gz'
-  sha1 '420bbc789342cd82706f940f2d179f1676499887'
+  url 'http://redis.googlecode.com/files/redis-2.6.13.tar.gz'
+  sha1 '2ef8ea6a67465b6c5a5ea49241313d3dbc0de11b'
 
   head 'https://github.com/antirez/redis.git', :branch => 'unstable'
 
@@ -31,7 +31,7 @@ class Redis < Formula
     end
 
     # Fix redis upgrade from 2.4 to 2.6.
-    if File.exists?(etc/'redis.conf') && File.readlines(etc/'redis.conf').grep(/^vm-enabled/)
+    if File.exists?(etc/'redis.conf') && !File.readlines(etc/'redis.conf').grep(/^vm-enabled/).empty?
       mv etc/'redis.conf', etc/'redis.conf.old'
       ohai "Your redis.conf will not work with 2.6; moved it to redis.conf.old"
     end
@@ -47,7 +47,10 @@ class Redis < Formula
     <plist version="1.0">
       <dict>
         <key>KeepAlive</key>
-        <true/>
+        <dict>
+          <key>SuccessfulExit</key>
+          <false/>
+        </dict>
         <key>Label</key>
         <string>#{plist_name}</string>
         <key>ProgramArguments</key>
@@ -57,8 +60,6 @@ class Redis < Formula
         </array>
         <key>RunAtLoad</key>
         <true/>
-        <key>UserName</key>
-        <string>#{`whoami`.chomp}</string>
         <key>WorkingDirectory</key>
         <string>#{var}</string>
         <key>StandardErrorPath</key>

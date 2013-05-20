@@ -2,15 +2,17 @@ require 'formula'
 
 class Postgresql < Formula
   homepage 'http://www.postgresql.org/'
-  url 'http://ftp.postgresql.org/pub/source/v9.2.1/postgresql-9.2.1.tar.bz2'
-  sha1 'cea9601b3acd1484fd98441b49a15ea1c42057ec'
+  url 'http://ftp.postgresql.org/pub/source/v9.2.4/postgresql-9.2.4.tar.bz2'
+  sha1 '75b53c884cb10ed9404747b51677358f12082152'
 
   depends_on 'readline'
   depends_on 'libxml2' if MacOS.version == :leopard # Leopard libxml is too old
-  depends_on 'ossp-uuid' unless build.include? 'without-ossp-uuid'
+  depends_on 'ossp-uuid' => :recommended
+
+  conflicts_with 'postgres-xc',
+    :because => 'postgresql and postgres-xc install the same binaries.'
 
   option '32-bit'
-  option 'without-ossp-uuid', 'Build without OSSP uuid'
   option 'no-python', 'Build without Python support'
   option 'no-perl', 'Build without Perl support'
   option 'enable-dtrace', 'Build with DTrace support'
@@ -29,24 +31,26 @@ class Postgresql < Formula
   def install
     ENV.libxml2 if MacOS.version >= :snow_leopard
 
-    args = ["--disable-debug",
-            "--prefix=#{prefix}",
-            "--datadir=#{share}/#{name}",
-            "--docdir=#{doc}",
-            "--enable-thread-safety",
-            "--with-bonjour",
-            "--with-gssapi",
-            "--with-krb5",
-            "--with-openssl",
-            "--with-libxml",
-            "--with-libxslt"]
+    args = %W[
+      --disable-debug
+      --prefix=#{prefix}
+      --datadir=#{share}/#{name}
+      --docdir=#{doc}
+      --enable-thread-safety
+      --with-bonjour
+      --with-gssapi
+      --with-krb5
+      --with-openssl
+      --with-libxml
+      --with-libxslt
+    ]
 
-    args << "--with-ossp-uuid" unless build.include? 'without-ossp-uuid'
+    args << "--with-ossp-uuid" if build.with? 'ossp-uuid'
     args << "--with-python" unless build.include? 'no-python'
     args << "--with-perl" unless build.include? 'no-perl'
     args << "--enable-dtrace" if build.include? 'enable-dtrace'
 
-    unless build.include? 'without-ossp-uuid'
+    if build.with? 'ossp-uuid'
       ENV.append 'CFLAGS', `uuid-config --cflags`.strip
       ENV.append 'LDFLAGS', `uuid-config --ldflags`.strip
       ENV.append 'LIBS', `uuid-config --libs`.strip
@@ -112,24 +116,6 @@ class Postgresql < Formula
     To migrate existing data from a previous major version (pre-9.2) of PostgreSQL, see:
       http://www.postgresql.org/docs/9.2/static/upgrading.html
 
-    # Start/Stop PostgreSQL
-
-    If this is your first install, automatically load on login with:
-      mkdir -p ~/Library/LaunchAgents
-      cp #{plist_path} ~/Library/LaunchAgents/
-      launchctl load -w ~/Library/LaunchAgents/#{plist_path.basename}
-
-    If this is an upgrade and you already have the #{plist_path.basename} loaded:
-      launchctl unload -w ~/Library/LaunchAgents/#{plist_path.basename}
-      cp #{plist_path} ~/Library/LaunchAgents/
-      launchctl load -w ~/Library/LaunchAgents/#{plist_path.basename}
-
-    Or start manually with:
-      pg_ctl -D #{var}/postgres -l #{var}/postgres/server.log start
-
-    And stop with:
-      pg_ctl -D #{var}/postgres stop -s -m fast
-
     # Loading Extensions
 
     By default, Homebrew builds all available Contrib extensions.  To see a list of all
@@ -153,20 +139,16 @@ class Postgresql < Formula
       http://www.postgresql.org/docs/9.2/static/kernel-resources.html#SYSVIPC
     EOS
 
-    if MacOS.prefer_64_bit? then
-      s << <<-EOS.undent
-
-      To install postgresql (and ossp-uuid) in 32-bit mode:
-         brew install postgresql --32-bit
-
-      If you want to install the postgres gem, including ARCHFLAGS is recommended:
-          env ARCHFLAGS="-arch x86_64" gem install pg
-
-      To install gems without sudo, see the Homebrew wiki.
-      EOS
-    end
-
+    s << gem_caveats if MacOS.prefer_64_bit?
     return s
+  end
+
+  def gem_caveats; <<-EOS.undent
+    When installing the postgres gem, including ARCHFLAGS is recommended:
+      ARCHFLAGS="-arch x86_64" gem install pg
+
+    To install gems without sudo, see the Homebrew wiki.
+    EOS
   end
 
   plist_options :manual => "pg_ctl -D #{HOMEBREW_PREFIX}/var/postgres -l #{HOMEBREW_PREFIX}/var/postgres/server.log start"
@@ -190,8 +172,6 @@ class Postgresql < Formula
       </array>
       <key>RunAtLoad</key>
       <true/>
-      <key>UserName</key>
-      <string>#{`whoami`.chomp}</string>
       <key>WorkingDirectory</key>
       <string>#{HOMEBREW_PREFIX}</string>
       <key>StandardErrorPath</key>

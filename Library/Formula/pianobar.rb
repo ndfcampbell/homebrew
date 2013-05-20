@@ -2,11 +2,12 @@ require 'formula'
 
 class Pianobar < Formula
   homepage 'https://github.com/PromyLOPh/pianobar/'
-  url 'https://github.com/PromyLOPh/pianobar/tarball/2012.09.07'
-  sha1 'c4e399dafaffb3c4c4c07682f5cfac82605600da'
+  url 'https://github.com/PromyLOPh/pianobar/archive/2012.12.01.tar.gz'
+  sha256 '25f12e230adef68405a89dbe290e437a64258fdea7bf26fe9bf04548699a390b'
 
   head 'https://github.com/PromyLOPh/pianobar.git'
 
+  depends_on 'pkg-config' => :build
   depends_on 'libao'
   depends_on 'mad'
   depends_on 'faad2'
