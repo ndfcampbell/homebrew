@@ -1,15 +1,15 @@
 require 'formula'
 
 class Distribute < Formula
-  url 'http://pypi.python.org/packages/source/d/distribute/distribute-0.6.40.tar.gz'
-  sha1 '46654be10177014bbb502a4c516627173de67d15'
+  url 'http://pypi.python.org/packages/source/d/distribute/distribute-0.6.45.tar.gz'
+  sha1 '55b15037f2222828496a96f38447c0fa0228df85'
 end
 
 class Pypy < Formula
   homepage 'http://pypy.org/'
-  url 'https://bitbucket.org/pypy/pypy/downloads/pypy-2.0.1-osx64.tar.bz2'
-  version '2.0.1'
-  sha1 '811fd377ab2eda9233a0c34340f981f9aba1ba9a'
+  url 'https://bitbucket.org/pypy/pypy/downloads/pypy-2.0.2-osx64.tar.bz2'
+  version '2.0.2'
+  sha1 'a53de7bc88b9caa635d9d679c6e63813881ea7e9'
 
   depends_on :arch => :x86_64
 
@@ -41,15 +41,16 @@ class Pypy < Formula
     # to get newer versions of distribute outside of Homebrew.
     Distribute.new.brew do
       system "#{bin}/pypy", "setup.py", "install"
+    end
 
-      # Symlink to easy_install_pypy.
-      unless (scripts_folder+'easy_install_pypy').exist?
-        ln_s "#{scripts_folder}/easy_install", "#{scripts_folder}/easy_install_pypy"
-      end
-      # Symlink to pip_pypy.
-      unless (scripts_folder+'pip_pypy').exist?
-        ln_s "#{scripts_folder}/pip", "#{scripts_folder}/pip_pypy"
-      end
+    # Symlink to easy_install_pypy.
+    unless (scripts_folder+'easy_install_pypy').exist?
+      ln_s "#{scripts_folder}/easy_install", "#{scripts_folder}/easy_install_pypy"
+    end
+
+    # Symlink to pip_pypy.
+    unless (scripts_folder+'pip_pypy').exist?
+      ln_s "#{scripts_folder}/pip", "#{scripts_folder}/pip_pypy"
     end
   end
 
